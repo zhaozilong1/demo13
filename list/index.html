@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap-theme.css">
+    <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="node_modules/summernote/dist/summernote.css">
+    <script src="node_modules/summernote/dist/summernote.js"></script>
+    <link rel="stylesheet" href="stylecss/style.css">
+    <script>
+        $(function(){
+            var _this_ = "";
+            $.ajax({
+                url:"http://localhost:3000/list",
+                type:"POST",
+                success:function(e){
+                    for(var i in e){
+                        $(".table-responsive tbody").append("<tr><td>"+e[i].id+"</td><td>"+e[i].title+"</td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" th_id='"+e[i].id+"'>修改</button></td><td class='del' th_id='"+e[i].id+"'>删除</td></tr>")
+                    }
+                    $(".btn-primary").click(function () {
+
+                    })
+
+                }
+            });
+            //修改
+            $(".zzl1").summernote()
+            $(".table-responsive tbody").on("click",".btn-primary",function () {
+                _this_ = $(this).attr("th_id");
+                console.log(_this_)
+//                $(".inputEmail3").val(_this_)
+            });
+            $(".btn-default").click(function () {
+                console.log($("#inputEmail3").val());
+                $.ajax({
+                    url:"http://localhost:3000/xiugai",
+                    type:"POST",
+                    data:{
+                        a:$("#inputEmail3").val(),
+                        b:$(".zzl1").summernote("code"),
+                        id:_this_
+                    },
+                    success:function (e) {
+                        console.log(e)
+//                        $("#inputEmail3").val(e[0].title);
+//                        $(".zzl1").summernote(e[0].content);
+                        $.ajax({
+                            url: "http://localhost:3000/list",
+                            type: "POST",
+                            success: function (e) {
+                                console.log(e)
+                                var str = "";
+                               for (var i in e) {
+                                    str += "<tr><td>" + e[i].id + "</td><td>" + e[i].title + "</td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" th_id='"+e[i].id+"'>修改</button></td><td class='del' th_id='" + e[i].id + "'>删除</td></tr>"
+                                }
+                                $(".table-responsive tbody").html(str)
+                            }
+                        })
+                    }
+                })
+            });
+
+
+            //删除
+            $(".table-responsive tbody").on("click",".del",function () {
+                var _this = $(this).attr("th_id")
+                $.ajax({
+                    url:"http://localhost:3000/del",
+                    type:"POST",
+                    data:{
+                        id:_this
+                    },
+                    success:function(e){
+                        $.ajax({
+                            url: "http://localhost:3000/list",
+                            type: "POST",
+                            success: function (e) {
+                                var str = "";
+                                for (var i in e) {
+                                    str += "<tr><td>" + e[i].id + "</td><td>" + e[i].title + "</td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" th_id='"+e[i].id+"'>修改</button></td><td class='del' th_id='" + e[i].id + "'>删除</td></tr>"
+                                }
+                                $(".table-responsive tbody").html(str)
+                            }
+                        })
+                    }
+                })
+            })
+
+            //增加
+            $(".zzl").summernote()
+            $(".modal-footer .btn-primary").click(function(){
+                if($("#exampleInputEmail1").val() == "" || $(".note-editable").html() == ""){
+                    alert($("#exampleInputEmail1").val() + "不是字符串")
+                }else{
+                    $.ajax({
+                        url:"http://localhost:3000/zeng",
+                        type:"POST",
+                        data:{
+                            a:$("#exampleInputEmail1").val(),
+                            b:$(".zzl").summernote("code")
+                        },
+                        success:function(e){
+                            $.ajax({
+                                url: "http://localhost:3000/list",
+                                type: "POST",
+                                success: function (e) {
+                                    var str = "";
+                                    for (var i in e) {
+                                        str += "<tr><td>" + e[i].id + "</td><td>" + e[i].title + "</td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\".bs-example-modal-lg\" th_id='"+e[i].id+"'>修改</button></td><td class='del' th_id='" + e[i].id + "'>删除</td></tr>"
+                                    }
+                                    $(".table-responsive tbody").html(str)
+                                    $("#exampleInputEmail1").val("")
+                                    $(".note-editable").html("")
+                                }
+                            })
+                        }
+                    })
+                }
+
+            })
+
+
+        })
+    </script>
+</head>
+<body>
+<!-- Large modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg">Large modal</button>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" style="padding: 50px">
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">title</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputEmail3" placeholder="title">
+                    </div>
+                </div>
+                    <div class="zzl1">
+
+                    </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" class="btn btn-default">Sign in</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<nav class="navbar navbar-default">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#">Profile</a></li>
+                    <li><a href="#">Help</a></li>
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <input type="text" class="form-control" placeholder="Search...">
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Analytics</a></li>
+                    <li><a href="#">Export</a></li>
+                </ul>
+                <ul class="nav nav-sidebar">
+                    <li><a href="">Nav item</a></li>
+                    <li><a href="">Nav item again</a></li>
+                    <li><a href="">One more nav</a></li>
+                    <li><a href="">Another nav item</a></li>
+                    <li><a href="">More navigation</a></li>
+                </ul>
+                <ul class="nav nav-sidebar">
+                    <li><a href="">Nav item again</a></li>
+                    <li><a href="">One more nav</a></li>
+                    <li><a href="">Another nav item</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <div class="row">
+                    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                        Launch demo modal
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <form>
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail1">title</label>
+                                            <input type="text" class="form-control" id="exampleInputEmail1" placeholder="title">
+                                        </div>
+                                        <div class="form-group">
+                                            <!--<label for="exampleInputPassword1">content</label>-->
+                                            <div class="zzl"></div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>#id</th>
+                            <th>title</th>
+                            <th>修改</th>
+                            <th>删除</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>
